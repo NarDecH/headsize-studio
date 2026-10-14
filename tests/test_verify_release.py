@@ -18,6 +18,9 @@ EXE = "HeadSize-Studio-1.2.3-windows-x64.exe"
 DIGEST = "a" * 64
 
 
+DMG = "HeadSize-Studio-1.2.3-macos-arm64.dmg"
+
+
 def release_json(
     *,
     tag: str = TAG,
@@ -102,6 +105,37 @@ def test_a_draft_release_is_rejected() -> None:
         "release is published (not a draft)",
         "a stable installation is offered this release",
     ]
+
+
+def test_another_platform_can_be_checked_from_this_host() -> None:
+    """The override must reach the asset picker, not just the report label.
+
+    This is what broke CI: on Linux the tool claimed to check Windows while
+    still selecting a Linux build, so every check downstream failed.
+    """
+    assets = [
+        {"name": EXE, "browser_download_url": "https://example.com/x.exe", "size": 10},
+        {"name": DMG, "browser_download_url": "https://example.com/x.dmg", "size": 20},
+        {
+            "name": "SHA256SUMS.txt",
+            "browser_download_url": "https://example.com/SHA256SUMS.txt",
+            "size": 105,
+        },
+    ]
+    report = verify_release.verify(
+        SLUG,
+        TAG,
+        client=client_for(release_json(assets=assets)),
+        read_text=lambda url: f"{DIGEST}  {DMG}\n",
+        status=lambda url: 200,
+        platform_name="macos",
+        arch="arm64",
+    )
+
+    assert report.ok, report.render()
+    picked = [f for f in report.findings if "updater picks" in f.name]
+    assert picked and picked[0].detail == DMG
+    assert "macos/arm64" in picked[0].name
 
 
 def test_a_release_for_another_platform_is_reported() -> None:

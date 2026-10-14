@@ -254,7 +254,17 @@ def verify(
         "release body is not empty", bool(release.notes.strip()), f"{len(release.notes)} chars"
     )
 
-    updater = Updater(owner, repo, __version__, client=client)
+    # The target platform has to reach the Updater: it is the object that picks
+    # the asset, so a check aimed at another OS would otherwise silently grade
+    # this host's build.
+    updater = Updater(
+        owner,
+        repo,
+        __version__,
+        client=client,
+        platform_name=platform_name,
+        arch=arch,
+    )
     asset = updater.asset_for(release)
     report.add(
         f"updater picks a build for {platform_name}/{arch}",
