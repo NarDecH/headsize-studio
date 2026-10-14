@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: Tag to publish (must already exist), e.g. v1.0.0
+        description: Existing tag to publish from, e.g. v1.0.0 (defaults to the ref it runs on)
         required: false
 
 permissions:
@@ -21,6 +21,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - id: read
+        # A manual run can name the tag; a tag push uses the pushed tag.
+        env:
+          RELEASE_TAG: ${{ github.event.inputs.tag || github.ref_name }}
         run: |
           python - <<'PY'
           import re, pathlib, os
@@ -29,7 +32,7 @@ jobs:
           pyproject = re.search(r'^version\s*=\s*"([^"]+)"',
                                 pathlib.Path("pyproject.toml").read_text(), re.M).group(1)
           assert version == pyproject, f"version.py {version} != pyproject.toml {pyproject}"
-          tag = os.environ.get("GITHUB_REF_NAME", "")
+          tag = os.environ.get("RELEASE_TAG", "")
           if tag.startswith("v") and tag[1:] != version:
               raise SystemExit(f"tag {tag} does not match version {version}")
           with open(os.environ["GITHUB_OUTPUT"], "a") as fh:
@@ -128,12 +131,14 @@ jobs:
       - name: Create the release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ github.ref_name }}
+          tag_name: ${{ github.event.inputs.tag || github.ref_name }}
           name: HeadSize Studio ${{ needs.verify-version.outputs.version }}
-          generate_release_notes: true
+          # The changelog is the release body; GitHub's generated notes would
+          # replace it, so they stay off and the changelog is linked instead.
+          generate_release_notes: false
           body_path: docs/changelog.md
           draft: false
-          prerelease: ${{ contains(github.ref_name, '-') }}
+          prerelease: ${{ contains(github.event.inputs.tag || github.ref_name, '-') }}
           files: |
             dist/HeadSize-Studio-*.exe
             dist/SHA256SUMS.txt
