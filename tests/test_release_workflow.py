@@ -25,8 +25,14 @@ def test_release_runs_on_version_tags() -> None:
 
 def test_release_body_is_the_changelog() -> None:
     text = RELEASE.read_text(encoding="utf-8")
-    assert "body_path: docs/changelog.md" in text
     assert (ROOT / "docs" / "changelog.md").is_file()
+    assert "tools/make_release_notes.py" in text, (
+        "the body must be converted so its relative links resolve on the page"
+    )
+    assert "body_path: release-notes.md" in text
+    assert "body_path: docs/changelog.md" not in text, (
+        "the raw changelog links point at files that do not exist on a Release page"
+    )
     assert "generate_release_notes: true" not in text, (
         "generated notes replace body_path, so the changelog would be lost"
     )
@@ -36,6 +42,12 @@ def test_release_uploads_the_assets_the_updater_downloads() -> None:
     text = RELEASE.read_text(encoding="utf-8")
     assert "dist/HeadSize-Studio-*.exe" in text, "the updater needs a matching .exe asset"
     assert "dist/SHA256SUMS.txt" in text, "the updater verifies against SHA256SUMS.txt"
+
+
+def test_release_notes_are_built_for_the_tag_being_released() -> None:
+    text = RELEASE.read_text(encoding="utf-8")
+    notes_step = text.split("tools/make_release_notes.py", 1)[1]
+    assert "--ref" in notes_step, "the links must be pinned to the released tag"
 
 
 def test_release_checks_the_tag_against_both_version_files() -> None:

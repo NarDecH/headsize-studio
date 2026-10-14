@@ -114,6 +114,7 @@ python -m headsize.cli photo.jpg --scale 1.3
 python tools/make_doc_images.py         # regenerate docs/assets
 python tools/build_docs.py --check      # rebuild + validate the HTML docs
 python tools/build_exe.py               # dist/HeadSize-Studio-<ver>-windows-x64.exe
+python tools/make_release_notes.py --out release-notes.md --ref v1.0.0
 ```
 
 Set `HEADSIZE_TEST_IMAGE=/path/to/portrait.jpg` and run
@@ -160,6 +161,13 @@ the repository refuses to ship third-party photographs.
 5. `.github/workflows/release.yml` tests on three platforms, builds the Windows
    executable, writes `SHA256SUMS.txt` and publishes the release. Running
    installations pick it up through the in-app updater.
+
+The release body is the changelog, converted by `tools/make_release_notes.py` so
+its relative links resolve on the release page (GitHub renders a body against the
+repository root, where `assets/…` does not exist). Never enable
+`generate_release_notes`: GitHub's generated notes silently replace `body_path`.
+To repair the notes of an existing release, run the Release workflow by hand with
+its `tag` input set to that tag — the publish job updates the body in place.
 
 The updater reads `headsize/update/repo.py`; `tools/set_repo.py --owner <name>`
 rewrites it (plus the URLs in `pyproject.toml` and the docs) when the project is

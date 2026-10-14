@@ -124,10 +124,20 @@ jobs:
     runs-on: ubuntu-latest
     needs: [build-windows, build-docs, verify-version]
     steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
       - uses: actions/download-artifact@v4
         with:
           name: windows-exe
           path: dist
+      - name: Build the release notes from the changelog
+        run: |
+          python tools/make_release_notes.py \
+            --ref "${{ github.event.inputs.tag || github.ref_name }}" \
+            --out release-notes.md
+          grep -n '](http' release-notes.md || true
       - name: Create the release
         uses: softprops/action-gh-release@v2
         with:
@@ -135,8 +145,10 @@ jobs:
           name: HeadSize Studio ${{ needs.verify-version.outputs.version }}
           # The changelog is the release body; GitHub's generated notes would
           # replace it, so they stay off and the changelog is linked instead.
+          # The body comes from the converted copy, whose relative links would
+          # otherwise break on this page.
           generate_release_notes: false
-          body_path: docs/changelog.md
+          body_path: release-notes.md
           draft: false
           prerelease: ${{ contains(github.event.inputs.tag || github.ref_name, '-') }}
           files: |
