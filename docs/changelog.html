@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Changelog · HeadSize Studio</title>
+<meta name="description" content="What changed in every version">
+<link rel="icon" href="assets/icon.png" type="image/png">
+<style>
+:root {
+  --bg: #f5f7fc;
+  --surface: #ffffff;
+  --surface-alt: #f0f3fb;
+  --border: #dde3f0;
+  --text: #16203a;
+  --muted: #5a6784;
+  --accent: #4059e8;
+  --accent-soft: #e8ecff;
+  --code-bg: #eef1f9;
+  --shadow: 0 10px 30px rgba(24, 39, 75, .08);
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0d1017;
+    --surface: #151a24;
+    --surface-alt: #1a2130;
+    --border: #262f41;
+    --text: #e8edfa;
+    --muted: #98a4bf;
+    --accent: #7d97ff;
+    --accent-soft: #1e2540;
+    --code-bg: #111725;
+    --shadow: 0 12px 34px rgba(0, 0, 0, .45);
+  }
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: 16px/1.7 "Segoe UI Variable Text", "Segoe UI", "Leelawadee UI", "Noto Sans Thai", system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+.layout { display: grid; grid-template-columns: 280px minmax(0, 1fr); gap: 0; max-width: 1400px; margin: 0 auto; }
+.sidebar {
+  position: sticky; top: 0; align-self: start; height: 100vh; overflow-y: auto;
+  padding: 28px 22px; border-right: 1px solid var(--border); background: var(--surface);
+}
+.brand { display: flex; align-items: center; gap: 12px; margin-bottom: 6px; }
+.brand img { width: 38px; height: 38px; }
+.brand strong { font-size: 17px; letter-spacing: .2px; }
+.brand span { display: block; font-size: 12px; color: var(--muted); font-weight: 400; }
+.badge {
+  display: inline-block; margin: 14px 6px 18px 0; padding: 3px 10px; border-radius: 999px;
+  background: var(--accent-soft); color: var(--accent); font-size: 12px; font-weight: 600;
+}
+.nav { display: flex; flex-direction: column; gap: 4px; margin-bottom: 22px; }
+.nav a { padding: 7px 11px; border-radius: 9px; color: var(--muted); font-weight: 500; font-size: 14.5px; }
+.nav a:hover { background: var(--surface-alt); text-decoration: none; color: var(--text); }
+.nav a.active { background: var(--accent-soft); color: var(--accent); }
+.toc-title { font-size: 11.5px; text-transform: uppercase; letter-spacing: .09em; color: var(--muted); margin: 0 0 8px 4px; }
+.toc ul { list-style: none; margin: 0; padding: 0; }
+.toc ul ul { padding-left: 14px; }
+.toc li { margin: 2px 0; }
+.toc a { color: var(--muted); font-size: 14px; }
+.toc a:hover { color: var(--accent); }
+main { padding: 40px 48px 96px; min-width: 0; }
+article { max-width: 900px; }
+h1 { font-size: 34px; line-height: 1.25; margin: 0 0 6px; letter-spacing: -.01em; }
+h2 { font-size: 24px; margin: 52px 0 14px; padding-top: 8px; border-top: 1px solid var(--border); }
+h3 { font-size: 19px; margin: 34px 0 10px; }
+h4 { font-size: 16px; margin: 24px 0 8px; }
+p { margin: 12px 0; }
+hr { border: none; border-top: 1px solid var(--border); margin: 40px 0; }
+strong { font-weight: 650; }
+figure { margin: 26px 0; }
+figure img, article > p > img {
+  max-width: 100%; height: auto; border-radius: 12px; border: 1px solid var(--border);
+  box-shadow: var(--shadow); display: block;
+}
+article > p > img { margin: 22px 0; }
+figcaption { color: var(--muted); font-size: 14px; margin-top: 10px; text-align: center; }
+table { border-collapse: collapse; width: 100%; margin: 20px 0; font-size: 14.5px; display: block; overflow-x: auto; }
+th, td { border: 1px solid var(--border); padding: 9px 12px; text-align: left; vertical-align: top; }
+th { background: var(--surface-alt); font-weight: 600; }
+article tbody tr:nth-child(even) td { background: var(--surface-alt); }
+code { background: var(--code-bg); padding: 2px 6px; border-radius: 6px; font-size: 13.5px;
+  font-family: "Cascadia Code", "JetBrains Mono", Consolas, monospace; }
+pre { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px 18px; overflow-x: auto; box-shadow: var(--shadow); }
+pre code { background: none; padding: 0; font-size: 13.5px; line-height: 1.6; }
+blockquote {
+  margin: 20px 0; padding: 14px 18px; border-left: 4px solid var(--accent);
+  background: var(--surface); border-radius: 0 10px 10px 0; color: var(--muted);
+}
+ul, ol { padding-left: 24px; }
+li { margin: 5px 0; }
+.footer { margin-top: 70px; padding-top: 22px; border-top: 1px solid var(--border); color: var(--muted); font-size: 13.5px; }
+.footer a { color: var(--accent); }
+@media (max-width: 900px) {
+  .layout { grid-template-columns: 1fr; }
+  .sidebar { position: static; height: auto; border-right: none; border-bottom: 1px solid var(--border); }
+  main { padding: 26px 20px 70px; }
+}
+@media print {
+  .sidebar { display: none; }
+  .layout { grid-template-columns: 1fr; }
+  body { background: #fff; color: #000; }
+  a { color: #000; text-decoration: underline; }
+}
+</style>
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar">
+    <div class="brand">
+      <img src="assets/icon.png" alt="HeadSize Studio logo">
+      <strong>HeadSize Studio<span>resize a head, keep the photo</span></strong>
+    </div>
+    <span class="badge">v1.0.0</span>
+    <nav class="nav">
+      <a href="readme.html">Overview</a>
+      <a href="research.html">Research</a>
+      <a href="changelog.html" class="active">Changelog</a>
+      <a href="https://github.com/NarDecH/headsize-studio">GitHub</a>
+    </nav>
+    <p class="toc-title">On this page</p>
+    <div class="toc">
+<div class="toc">
+<ul>
+<li><a href="#100-2026-10-14">[1.0.0] — 2026-10-14</a><ul>
+<li><a href="#added-editing">Added — editing</a></li>
+<li><a href="#added-application">Added — application</a></li>
+<li><a href="#added-auto-update">Added — auto-update</a></li>
+<li><a href="#added-developer-experience">Added — developer experience</a></li>
+<li><a href="#known-limitations">Known limitations</a></li>
+</ul>
+</li>
+<li><a href="#unreleased">Unreleased</a></li>
+<li><a href="#version-history">Version history</a></li>
+</ul>
+</div>
+
+    </div>
+  </aside>
+  <main>
+    <article>
+<h1 id="changelog">Changelog</h1>
+<p>All notable changes to HeadSize Studio are documented here. The format follows
+<a href="https://keepachangelog.com/en/1.1.0/">Keep a Changelog</a> and the project uses
+<a href="https://semver.org/">semantic versioning</a>.</p>
+<p>The same history, without the pictures, lives in the root
+<a href="https://github.com/NarDecH/headsize-studio/blob/main/CHANGELOG.md">CHANGELOG.md</a>.</p>
+<hr>
+<h2 id="100-2026-10-14">[1.0.0] — 2026-10-14</h2>
+<p><strong>First public release.</strong> Everything below is new; this entry doubles as a tour of
+what the app does.</p>
+<figure><img alt="Version 1.0.0: smaller, original and bigger versions of the same portrait" src="assets/hero-before-after.png"></figure>
+<h3 id="added-editing">Added — editing</h3>
+<ul>
+<li><strong>Automatic head detection</strong> with the YuNet DNN detector (<code>cv2.FaceDetectorYN</code>),
+  returning a face box plus five landmarks. The model (230 kB, MIT) is bundled,
+  SHA-256 pinned, and reused for the whole session.</li>
+<li><strong>Elliptical radial warp</strong> that grows or shrinks a head from 0.30× to 3.00×,
+  with one resampling pass and a C¹-smooth falloff (<code>headsize/core/warp.py</code>).</li>
+<li><strong>Head geometry estimation</strong> from face proportions: the ellipse is centred on
+  the eye line, sized from the box, padded for hair, and tilted with the eyes.</li>
+<li><strong>Multiple independent heads</strong> per photo, each with its own size, zone, tilt,
+  feather and enable switch, plus <em>use this size for every head</em>.</li>
+<li><strong>Interactive canvas</strong>: zoom under the cursor, pan, drag a head, resize the zone
+  with four handles, tilt it with a rotation handle, double-click to add a head,
+  right-click menu, split-compare with a draggable divider.</li>
+<li><strong>Live preview</strong> on a ≤ 1400 px proxy from a background-free render path that
+  stays under 10 ms, so dragging never stutters.</li>
+<li><strong>Parametric undo/redo</strong> (80 steps) that replays from the original pixels and
+  never degrades quality.</li>
+<li><strong>Selectable render quality</strong>: fast (bilinear), balanced, high (bicubic).</li>
+</ul>
+<h3 id="added-application">Added — application</h3>
+<ul>
+<li><strong>Bilingual interface</strong> (ไทย / English) with a language switch in the sidebar.</li>
+<li><strong>Dark and light themes</strong> — a single stylesheet driven by palette tokens.</li>
+<li><strong>Drag-and-drop</strong> image opening, recent files, and dirty-document prompts.</li>
+<li><strong>Metadata-preserving export</strong> to PNG, JPEG, WebP, TIFF and BMP, keeping EXIF,
+  ICC profile and DPI when asked.</li>
+<li><strong>Non-destructive saving</strong>: the default file name is <code>name-headsize.ext</code>.</li>
+<li><strong>Command line interface</strong> (<code>python -m headsize.cli</code>) for batch work, with
+  <code>--list-faces</code>, <code>--region</code> for manual zones and <code>--check-update</code>.</li>
+<li><strong>Settings</strong> for the update repository, JPEG quality, detection threshold and
+  the default feather.</li>
+</ul>
+<h3 id="added-auto-update">Added — auto-update</h3>
+<ul>
+<li><strong>GitHub Releases update check</strong> on start-up and on demand, with a stable or
+  beta channel.</li>
+<li><strong>SHA-256 verification</strong> against the release's <code>SHA256SUMS.txt</code> before anything
+  is installed.</li>
+<li><strong>Self-replacing portable build</strong>: a detached helper waits for the app to exit,
+  renames the old build to <code>*.old</code>, moves the new one in, restarts it, and rolls
+  back if the move fails. Covered by an end-to-end test that really swaps a file.</li>
+</ul>
+<h3 id="added-developer-experience">Added — developer experience</h3>
+<ul>
+<li><strong>132 tests</strong> (<code>pytest</code>), including a headless Qt suite that builds the real
+  window offscreen, edits through the same code paths the buttons use, grabs a
+  screenshot and asserts the render is not flat.</li>
+<li><strong>Offscreen screenshot generator</strong> for the documentation
+  (<code>tools/make_doc_images.py</code>), including a procedural portrait, so no
+  third-party photograph is redistributed.</li>
+<li><strong>Markdown → HTML documentation build</strong> with a self-contained theme
+  (<code>tools/build_docs.py</code>).</li>
+<li><strong>PyInstaller build script</strong> (<code>tools/build_exe.py</code>) with the Qt/OpenCV excludes
+  that keep the portable executable small.</li>
+<li><strong>GitHub Actions</strong>: CI on three platforms × Python 3.10–3.14, and a release
+  workflow that builds the executable, writes <code>SHA256SUMS.txt</code> and publishes the
+  release (which the in-app updater consumes).</li>
+<li><strong>AGENT.md</strong> describing the architecture, invariants and verification steps.</li>
+</ul>
+<h3 id="known-limitations">Known limitations</h3>
+<ul>
+<li>Only whole-head scaling: no neck lengthening, no face reshaping.</li>
+<li>A hard profile face is often not detected; place a zone by hand.</li>
+<li>Head growth saturates at roughly <code>1 / (head radius ÷ zone radius)</code> — about
+  1.4× with the default zone. Enlarge the zone for extreme caricatures. The maths
+  and measurements are in <a href="research.html#5-the-rim-is-a-fixed-point">research.md §5</a>.</li>
+<li>Self-update applies to packaged builds; running from source opens the release
+  page instead.</li>
+</ul>
+<hr>
+<h2 id="unreleased">Unreleased</h2>
+<p>Nothing yet. Candidate ideas, in no particular order:</p>
+<ul>
+<li>Area-conserving warps that remove the rim cap on head growth.</li>
+<li>Optional face-mesh landmarks (MediaPipe-style) for profile and tilted heads.</li>
+<li>Batch mode in the GUI (one setting across many photos, with a preview strip).</li>
+<li>A "before/after" animated export (GIF/MP4) for sharing.</li>
+<li>Portable settings that travel with the executable, for USB sticks.</li>
+</ul>
+<hr>
+<h2 id="version-history">Version history</h2>
+<table>
+<thead>
+<tr>
+<th>Version</th>
+<th>Date</th>
+<th>Highlights</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1.0.0</td>
+<td>2026-10-14</td>
+<td>First release: detection, elliptical warp, live GUI, auto-update, docs</td>
+</tr>
+</tbody>
+</table>
+    </article>
+    <div class="footer">
+      <p>HeadSize Studio 1.0.0 · MIT licence · built 2026-10-14 ·
+      <a href="https://github.com/NarDecH/headsize-studio">source on GitHub</a> ·
+      <a href="https://github.com/NarDecH/headsize-studio/releases">releases</a> ·
+      <a href="https://github.com/NarDecH/headsize-studio/issues">issues</a></p>
+      <p>This page was generated from <code>changelog.md</code> by <code>tools/build_docs.py</code>.</p>
+    </div>
+  </main>
+</div>
+</body>
+</html>

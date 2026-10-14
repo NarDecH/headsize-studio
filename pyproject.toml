@@ -1,0 +1,71 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "headsize-studio"
+version = "1.0.0"
+description = "Desktop app to resize the head of people in a photo, with a live GUI preview and auto-update."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "HeadSize Studio contributors" }]
+keywords = ["photo", "face", "head", "warp", "liquify", "caricature", "pyqt6", "opencv"]
+classifiers = [
+  "Development Status :: 5 - Production/Stable",
+  "Environment :: X11 Applications :: Qt",
+  "Intended Audience :: End Users/Desktop",
+  "License :: OSI Approved :: MIT License",
+  "Natural Language :: Thai",
+  "Natural Language :: English",
+  "Operating System :: Microsoft :: Windows",
+  "Operating System :: POSIX :: Linux",
+  "Operating System :: MacOS",
+  "Programming Language :: Python :: 3",
+  "Topic :: Multimedia :: Graphics :: Editors",
+]
+dependencies = [
+  "numpy>=1.26",
+  "opencv-python-headless>=4.9",
+  "PyQt6>=6.5",
+  "Pillow>=10.0",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.0",
+  "pyinstaller>=6.0",
+  "markdown>=3.5",
+]
+
+[project.scripts]
+headsize-studio = "headsize.__main__:main"
+headsize-cli = "headsize.cli:main"
+
+[project.gui-scripts]
+headsize-studio-gui = "headsize.__main__:main"
+
+[project.urls]
+Homepage = "https://github.com/NarDecH/headsize-studio"
+Documentation = "https://github.com/NarDecH/headsize-studio/blob/main/docs/readme.md"
+Changelog = "https://github.com/NarDecH/headsize-studio/blob/main/CHANGELOG.md"
+
+[tool.setuptools]
+packages = ["headsize", "headsize.core", "headsize.ui", "headsize.update"]
+
+[tool.setuptools.package-data]
+headsize = ["assets/models/*", "assets/icons/*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+addopts = "-q"
+markers = [
+  "integration: needs a real photo via HEADSIZE_TEST_IMAGE",
+  "gui: exercises the Qt user interface",
+]
+filterwarnings = ["error::DeprecationWarning:headsize.*"]
+
+[tool.ruff]
+line-length = 96
+target-version = "py310"

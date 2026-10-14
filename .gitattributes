@@ -1,0 +1,27 @@
+* text=auto eol=lf
+
+# Binary assets must never be normalised
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.ico binary
+*.onnx binary
+*.webp binary
+*.zip binary
+
+# Windows scripts keep CRLF so cmd.exe is happy
+*.cmd text eol=crlf
+*.bat text eol=crlf
+*.ps1 text eol=crlf
+
+# Documentation is text
+*.md text eol=lf
+*.svg text eol=lf
+*.html text eol=lf
+*.yml text eol=lf
+*.toml text eol=lf
+
+# Generated files: hide them from diffs and language stats
+docs/*.html linguist-generated=true
+docs/assets/* linguist-documentation=true
+headsize/assets/models/*.onnx linguist-vendored=true

@@ -1,0 +1,143 @@
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Tag to publish (must already exist), e.g. v1.0.0
+        required: false
+
+permissions:
+  contents: write
+
+jobs:
+  verify-version:
+    name: Version consistency
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.read.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: read
+        run: |
+          python - <<'PY'
+          import re, pathlib, os
+          version = re.search(r'__version__\s*=\s*"([^"]+)"',
+                              pathlib.Path("headsize/version.py").read_text()).group(1)
+          pyproject = re.search(r'^version\s*=\s*"([^"]+)"',
+                                pathlib.Path("pyproject.toml").read_text(), re.M).group(1)
+          assert version == pyproject, f"version.py {version} != pyproject.toml {pyproject}"
+          tag = os.environ.get("GITHUB_REF_NAME", "")
+          if tag.startswith("v") and tag[1:] != version:
+              raise SystemExit(f"tag {tag} does not match version {version}")
+          with open(os.environ["GITHUB_OUTPUT"], "a") as fh:
+              fh.write(f"version={version}\n")
+          print("version", version, "tag", tag)
+          PY
+
+  test:
+    name: Test (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: true
+      matrix:
+        os: [windows-latest, ubuntu-latest]
+    env:
+      PYTHONUTF8: "1"
+      QT_QPA_PLATFORM: offscreen
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+          cache: pip
+      - name: Install Qt runtime libraries (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libegl1 libgl1 libxkbcommon-x11-0 libxcb-cursor0 \
+            libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 libxcb-render-util0 \
+            libxcb-shape0 libxcb-xinerama0 libdbus-1-3 fonts-noto-core
+      - run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements-dev.txt
+      - run: python -m pytest -q
+
+  build-windows:
+    name: Build portable Windows executable
+    runs-on: windows-latest
+    needs: [verify-version, test]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+          cache: pip
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements-dev.txt
+      - name: Build, checksum and self-test
+        run: python tools/build_exe.py
+      - name: Show the artifact
+        run: |
+          Get-ChildItem dist | Format-Table Name, Length
+          Get-Content dist/SHA256SUMS.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows-exe
+          path: |
+            dist/HeadSize-Studio-*.exe
+            dist/SHA256SUMS.txt
+          if-no-files-found: error
+
+  build-docs:
+    name: Build the HTML documentation
+    runs-on: ubuntu-latest
+    needs: verify-version
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+          cache: pip
+      - run: |
+          python -m pip install --upgrade pip
+          python -m pip install markdown
+      - name: Rebuild and validate
+        run: python tools/build_docs.py --check
+      - name: Check the committed HTML is up to date
+        run: git diff --exit-code -- docs || echo "::warning::docs HTML differs from the markdown; run tools/build_docs.py"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: docs-html
+          path: docs/**
+          if-no-files-found: error
+
+  publish:
+    name: Publish the release
+    runs-on: ubuntu-latest
+    needs: [build-windows, build-docs, verify-version]
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: windows-exe
+          path: dist
+      - name: Create the release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: HeadSize Studio ${{ needs.verify-version.outputs.version }}
+          generate_release_notes: true
+          body_path: docs/changelog.md
+          draft: false
+          prerelease: ${{ contains(github.ref_name, '-') }}
+          files: |
+            dist/HeadSize-Studio-*.exe
+            dist/SHA256SUMS.txt
+      - name: Summary
+        run: |
+          echo "### HeadSize Studio ${{ needs.verify-version.outputs.version }}" >> $GITHUB_STEP_SUMMARY
+          echo "The in-app updater reads this release's assets and SHA256SUMS.txt." >> $GITHUB_STEP_SUMMARY

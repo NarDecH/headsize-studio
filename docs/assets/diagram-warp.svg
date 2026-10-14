@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 980 420" width="980" height="420" role="img" aria-label="Elliptical warp geometry">
+  <style>
+    .bg { fill: #131725; }
+    .title { fill: #e9eefb; font: 600 16px "Segoe UI", system-ui, sans-serif; }
+    .label { fill: #93a1bd; font: 12.5px "Segoe UI", system-ui, sans-serif; }
+    .small { fill: #7d8aa5; font: 11.5px "Segoe UI", system-ui, sans-serif; }
+    .accent { fill: #6c8cff; }
+    .teal { fill: #45d7b0; }
+    .ring { fill: none; stroke: #3a475c; stroke-width: 1.3; }
+    .axes { stroke: #2f3a4d; stroke-width: 1.2; }
+    .rim { fill: none; stroke: #6c8cff; stroke-width: 2.4; }
+    .core { fill: rgba(108,140,255,0.14); stroke: #8fa6ff; stroke-width: 1.6; stroke-dasharray: 6 5; }
+    .vec { stroke: #45d7b0; stroke-width: 2.4; marker-end: url(#a2); }
+    .curve { fill: none; stroke: #45d7b0; stroke-width: 2.6; }
+    .gridline { stroke: #263043; stroke-width: 1; }
+  </style>
+  <defs>
+    <marker id="a2" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto">
+      <path d="M0,0 L9,4.5 L0,9 z" fill="#45d7b0"/>
+    </marker>
+  </defs>
+
+  <rect class="bg" x="0" y="0" width="980" height="420" rx="16"/>
+  <text class="title" x="30" y="42">The influence ellipse and its radial falloff</text>
+  <text class="label" x="30" y="66">Destination pixel p maps to a source pixel closer to (or further from) the centre, weighted by w(d).</text>
+
+  <!-- ellipse panel -->
+  <g transform="translate(300,240)">
+    <line class="axes" x1="-260" y1="0" x2="260" y2="0"/>
+    <line class="axes" x1="0" y1="-190" x2="0" y2="190"/>
+    <ellipse class="ring" rx="240" ry="170"/>
+    <ellipse class="ring" rx="180" ry="127.5"/>
+    <ellipse class="ring" rx="120" ry="85"/>
+    <ellipse class="core" rx="72" ry="51"/>
+    <ellipse class="rim" rx="240" ry="170"/>
+    <circle r="4" class="accent"/>
+    <text class="small" x="8" y="-8">C</text>
+    <text class="small" x="-286" y="-14">d = 1 (rim, identity)</text>
+    <text class="small" x="76" y="-58">d = 1 − feather (core edge)</text>
+    <text class="small" x="6" y="188">d = 0</text>
+
+    <line class="vec" x1="238" y1="-40" x2="176" y2="-30"/>
+    <text class="small" x="150" y="-58">p → p / s</text>
+    <circle cx="238" cy="-40" r="4" fill="#45d7b0"/>
+    <circle cx="176" cy="-30" r="4" fill="#6c8cff"/>
+  </g>
+
+  <!-- graph panel -->
+  <g transform="translate(620,80)">
+    <rect x="0" y="0" width="330" height="250" rx="12" fill="#181e2c" stroke="#2c3547"/>
+    <text class="label" x="18" y="28">weight w(d)</text>
+    <line class="gridline" x1="40" y1="200" x2="310" y2="200"/>
+    <line class="gridline" x1="40" y1="60" x2="310" y2="60"/>
+    <line class="gridline" x1="40" y1="60" x2="40" y2="200"/>
+    <text class="small" x="12" y="64">1</text>
+    <text class="small" x="12" y="204">0</text>
+    <text class="small" x="36" y="222">0</text>
+    <text class="small" x="160" y="222">1 − feather</text>
+    <text class="small" x="288" y="222">1</text>
+    <path class="curve" d="M40 60 L148 60 C 205 60 240 150 300 200"/>
+    <text class="small" x="150" y="94">core: w = 1 → scale is exact</text>
+    <text class="small" x="150" y="176">blend: smoothstep to 0</text>
+    <text class="label" x="18" y="245">s = 1.30, feather = 0.22</text>
+  </g>
+
+  <text class="label" x="30" y="386">w(d) = smoothstep((1 − d) / feather), clamped to [0, 1] · m(d) = 1 + (1/s − 1) · w(d) · source = C + R(θ)·(u · m(d))</text>
+</svg>

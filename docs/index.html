@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Overview · HeadSize Studio</title>
+<meta name="description" content="What HeadSize Studio is and how to use it">
+<link rel="icon" href="assets/icon.png" type="image/png">
+<style>
+:root {
+  --bg: #f5f7fc;
+  --surface: #ffffff;
+  --surface-alt: #f0f3fb;
+  --border: #dde3f0;
+  --text: #16203a;
+  --muted: #5a6784;
+  --accent: #4059e8;
+  --accent-soft: #e8ecff;
+  --code-bg: #eef1f9;
+  --shadow: 0 10px 30px rgba(24, 39, 75, .08);
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0d1017;
+    --surface: #151a24;
+    --surface-alt: #1a2130;
+    --border: #262f41;
+    --text: #e8edfa;
+    --muted: #98a4bf;
+    --accent: #7d97ff;
+    --accent-soft: #1e2540;
+    --code-bg: #111725;
+    --shadow: 0 12px 34px rgba(0, 0, 0, .45);
+  }
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: 16px/1.7 "Segoe UI Variable Text", "Segoe UI", "Leelawadee UI", "Noto Sans Thai", system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+.layout { display: grid; grid-template-columns: 280px minmax(0, 1fr); gap: 0; max-width: 1400px; margin: 0 auto; }
+.sidebar {
+  position: sticky; top: 0; align-self: start; height: 100vh; overflow-y: auto;
+  padding: 28px 22px; border-right: 1px solid var(--border); background: var(--surface);
+}
+.brand { display: flex; align-items: center; gap: 12px; margin-bottom: 6px; }
+.brand img { width: 38px; height: 38px; }
+.brand strong { font-size: 17px; letter-spacing: .2px; }
+.brand span { display: block; font-size: 12px; color: var(--muted); font-weight: 400; }
+.badge {
+  display: inline-block; margin: 14px 6px 18px 0; padding: 3px 10px; border-radius: 999px;
+  background: var(--accent-soft); color: var(--accent); font-size: 12px; font-weight: 600;
+}
+.nav { display: flex; flex-direction: column; gap: 4px; margin-bottom: 22px; }
+.nav a { padding: 7px 11px; border-radius: 9px; color: var(--muted); font-weight: 500; font-size: 14.5px; }
+.nav a:hover { background: var(--surface-alt); text-decoration: none; color: var(--text); }
+.nav a.active { background: var(--accent-soft); color: var(--accent); }
+.toc-title { font-size: 11.5px; text-transform: uppercase; letter-spacing: .09em; color: var(--muted); margin: 0 0 8px 4px; }
+.toc ul { list-style: none; margin: 0; padding: 0; }
+.toc ul ul { padding-left: 14px; }
+.toc li { margin: 2px 0; }
+.toc a { color: var(--muted); font-size: 14px; }
+.toc a:hover { color: var(--accent); }
+main { padding: 40px 48px 96px; min-width: 0; }
+article { max-width: 900px; }
+h1 { font-size: 34px; line-height: 1.25; margin: 0 0 6px; letter-spacing: -.01em; }
+h2 { font-size: 24px; margin: 52px 0 14px; padding-top: 8px; border-top: 1px solid var(--border); }
+h3 { font-size: 19px; margin: 34px 0 10px; }
+h4 { font-size: 16px; margin: 24px 0 8px; }
+p { margin: 12px 0; }
+hr { border: none; border-top: 1px solid var(--border); margin: 40px 0; }
+strong { font-weight: 650; }
+figure { margin: 26px 0; }
+figure img, article > p > img {
+  max-width: 100%; height: auto; border-radius: 12px; border: 1px solid var(--border);
+  box-shadow: var(--shadow); display: block;
+}
+article > p > img { margin: 22px 0; }
+figcaption { color: var(--muted); font-size: 14px; margin-top: 10px; text-align: center; }
+table { border-collapse: collapse; width: 100%; margin: 20px 0; font-size: 14.5px; display: block; overflow-x: auto; }
+th, td { border: 1px solid var(--border); padding: 9px 12px; text-align: left; vertical-align: top; }
+th { background: var(--surface-alt); font-weight: 600; }
+article tbody tr:nth-child(even) td { background: var(--surface-alt); }
+code { background: var(--code-bg); padding: 2px 6px; border-radius: 6px; font-size: 13.5px;
+  font-family: "Cascadia Code", "JetBrains Mono", Consolas, monospace; }
+pre { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px 18px; overflow-x: auto; box-shadow: var(--shadow); }
+pre code { background: none; padding: 0; font-size: 13.5px; line-height: 1.6; }
+blockquote {
+  margin: 20px 0; padding: 14px 18px; border-left: 4px solid var(--accent);
+  background: var(--surface); border-radius: 0 10px 10px 0; color: var(--muted);
+}
+ul, ol { padding-left: 24px; }
+li { margin: 5px 0; }
+.footer { margin-top: 70px; padding-top: 22px; border-top: 1px solid var(--border); color: var(--muted); font-size: 13.5px; }
+.footer a { color: var(--accent); }
+@media (max-width: 900px) {
+  .layout { grid-template-columns: 1fr; }
+  .sidebar { position: static; height: auto; border-right: none; border-bottom: 1px solid var(--border); }
+  main { padding: 26px 20px 70px; }
+}
+@media print {
+  .sidebar { display: none; }
+  .layout { grid-template-columns: 1fr; }
+  body { background: #fff; color: #000; }
+  a { color: #000; text-decoration: underline; }
+}
+</style>
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar">
+    <div class="brand">
+      <img src="assets/icon.png" alt="HeadSize Studio logo">
+      <strong>HeadSize Studio<span>resize a head, keep the photo</span></strong>
+    </div>
+    <span class="badge">v1.0.0</span>
+    <nav class="nav">
+      <a href="readme.html" class="active">Overview</a>
+      <a href="research.html">Research</a>
+      <a href="changelog.html">Changelog</a>
+      <a href="https://github.com/NarDecH/headsize-studio">GitHub</a>
+    </nav>
+    <p class="toc-title">On this page</p>
+    <div class="toc">
+<div class="toc">
+<ul>
+<li><a href="#why-it-exists">Why it exists</a></li>
+<li><a href="#screenshots">Screenshots</a></li>
+<li><a href="#install">Install</a><ul>
+<li><a href="#windows-portable-build-no-installer">Windows — portable build (no installer)</a></li>
+<li><a href="#from-source-windows-macos-linux">From source (Windows, macOS, Linux)</a></li>
+<li><a href="#command-line-batch-it">Command line (batch it)</a></li>
+</ul>
+</li>
+<li><a href="#quick-start">Quick start</a></li>
+<li><a href="#the-controls">The controls</a></li>
+<li><a href="#keyboard-shortcuts">Keyboard shortcuts</a></li>
+<li><a href="#how-it-works">How it works</a></li>
+<li><a href="#auto-update">Auto-update</a></li>
+<li><a href="#faq">FAQ</a></li>
+<li><a href="#development">Development</a></li>
+<li><a href="#credits-and-licence">Credits and licence</a></li>
+</ul>
+</div>
+
+    </div>
+  </aside>
+  <main>
+    <article>
+<h1 id="headsize-studio">HeadSize Studio</h1>
+<p><strong>Resize the head of anyone in a photo — with a live preview, no layers, no manual selection.</strong></p>
+<figure><img alt="HeadSize Studio demo: the same portrait with the head made smaller, unchanged, and bigger" src="assets/hero-before-after.png"><figcaption>One click on <strong>Detect faces</strong>, one slider. Left: 0.78×, middle: original, right: 1.36×.</figcaption></figure>
+<hr>
+<h2 id="why-it-exists">Why it exists</h2>
+<p>Making a head bigger is the oldest joke in photo editing, and it is surprisingly
+annoying to do well: you lasso the head, scale it, and the neck, hair and
+background give you away with a hard seam. HeadSize Studio does the boring part
+for you.</p>
+<ul>
+<li><strong>Opens a photo, finds the faces.</strong> The YuNet neural detector locates each
+  face and its five landmarks in about 16 ms.</li>
+<li><strong>Grows or shrinks the head smoothly.</strong> A soft elliptical warp, so the hair,
+  the neck and the background follow instead of getting cut off.</li>
+<li><strong>Live preview at full speed.</strong> Sliders and drag handles update the picture
+  while you drag, always from the untouched original.</li>
+<li><strong>Multiple faces, individually controlled.</strong> Every head gets its own zone,
+  size, tilt and visibility switch.</li>
+<li><strong>Saves what you see.</strong> PNG, JPEG, WebP, TIFF or BMP with EXIF, ICC profile
+  and DPI preserved.</li>
+<li><strong>Updates itself.</strong> A portable build checks GitHub Releases, verifies the
+  checksum, swaps itself and restarts.</li>
+<li><strong>Thai and English UI</strong>, dark and light themes.</li>
+</ul>
+<h2 id="screenshots">Screenshots</h2>
+<figure><img alt="The dark theme with a head selected, showing the influence zone and handles" src="assets/shot-main-dark.png"><figcaption>The zone around the head is visible while you edit: drag the middle to move it,
+the four dots to resize it, the top dot to tilt it. Everything outside stays
+pixel-identical.</figcaption></figure>
+<figure><img alt="The light theme with the split compare view" src="assets/shot-main-light.png"><figcaption>Split view: the original on the left, the result on the right, with a draggable
+divider. <strong>Detect faces</strong> also fills the head list on the left.</figcaption></figure>
+<h2 id="install">Install</h2>
+<h3 id="windows-portable-build-no-installer">Windows — portable build (no installer)</h3>
+<ol>
+<li>Download <code>HeadSize-Studio-&lt;version&gt;-windows-x64.exe</code> from
+   <a href="https://github.com/NarDecH/headsize-studio/releases">Releases</a>.</li>
+<li>Run it. Nothing is installed, nothing is written outside your user folder.</li>
+<li>The app checks for newer versions on start-up and can update itself in place.</li>
+</ol>
+<h3 id="from-source-windows-macos-linux">From source (Windows, macOS, Linux)</h3>
+<pre><code class="language-bash">git clone https://github.com/NarDecH/headsize-studio.git
+cd headsize-studio
+python -m venv .venv
+# Windows:  .venv\Scripts\activate      macOS/Linux:  source .venv/bin/activate
+pip install -r requirements.txt
+python -m headsize            # the GUI
+</code></pre>
+<p>Requirements: Python 3.10+ and the packages in
+<a href="https://github.com/NarDecH/headsize-studio/blob/main/requirements.txt">requirements.txt</a> (<code>numpy</code>, <code>opencv-python-headless</code>,
+<code>PyQt6</code>, <code>Pillow</code>). The face model ships with the repository, so detection works
+offline out of the box.</p>
+<h3 id="command-line-batch-it">Command line (batch it)</h3>
+<pre><code class="language-bash">python -m headsize.cli photo.jpg --scale 1.3                 # every face +30 %
+python -m headsize.cli photo.jpg --list-faces                # what did it find?
+python -m headsize.cli photo.jpg --scale 0.85 \
+    --region 640,420,180,240 -o small.jpg                    # by hand, no detection
+</code></pre>
+<h2 id="quick-start">Quick start</h2>
+<ol>
+<li><strong>Open a photo</strong> — the button in the sidebar, <code>Ctrl+O</code>, or drag the file onto
+   the window.</li>
+<li>The app finds the faces automatically. If it found nothing, press
+   <strong>Add a head by hand</strong> and drag the zone over the head.</li>
+<li>Drag the <strong>Head size</strong> slider. <code>1.00×</code> is the original size; <code>1.30×</code> is a
+   clearly bigger head; <code>1.75×</code> is a meme.</li>
+<li>Fine-tune with the zone sliders — <strong>edge softness</strong> is the one that matters
+   most (see below).</li>
+<li>Press <strong>Save a copy</strong> (<code>Ctrl+S</code>). The suggestion is
+   <code>photo-headsize.jpg</code> so the original is never overwritten by accident.</li>
+</ol>
+<h2 id="the-controls">The controls</h2>
+<table>
+<thead>
+<tr>
+<th>Control</th>
+<th>What it does</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Head size</strong></td>
+<td>Scale of the head inside the zone. 0.30×–3.00×</td>
+<td>1.00×</td>
+</tr>
+<tr>
+<td><strong>Edge softness</strong> (feather)</td>
+<td>How much of the zone is used to blend the scale back to 1.0. Small = the whole head scales rigidly and the rim is tighter; large = softer, but the head grows less than the number says.</td>
+<td>22 %</td>
+</tr>
+<tr>
+<td><strong>Zone width / height</strong></td>
+<td>Size of the elliptical influence zone. Bigger zone = more room to grow before the rim stops it.</td>
+<td>from the face box</td>
+</tr>
+<tr>
+<td><strong>Zone tilt</strong></td>
+<td>Rotation of the zone, for tilted heads. Also dragged with the top handle.</td>
+<td>from the eyes</td>
+</tr>
+<tr>
+<td><strong>Render quality</strong></td>
+<td>Resampling filter: fast (bilinear), balanced, high (bicubic). Fast is for dragging sliders on huge photos.</td>
+<td>High</td>
+</tr>
+<tr>
+<td><strong>Compare</strong></td>
+<td>Result, Original, or Split with a draggable divider (<code>C</code> cycles).</td>
+<td>Result</td>
+</tr>
+<tr>
+<td><strong>Show the influence zone</strong></td>
+<td>The dashed ellipse overlay (<code>H</code>).</td>
+<td>On</td>
+</tr>
+<tr>
+<td><strong>Keep EXIF / ICC / DPI</strong></td>
+<td>Metadata is copied into the saved file.</td>
+<td>On</td>
+</tr>
+<tr>
+<td><strong>Channel</strong></td>
+<td>Stable or Beta release channel for updates.</td>
+<td>Stable</td>
+</tr>
+</tbody>
+</table>
+<figure><img alt="The sidebar: image, head list, size, zone, view and update cards" src="assets/shot-controls.png"><figcaption>Every control lives in one column. The head list shows each detected head with
+its own size, visibility switch and delete button.</figcaption></figure>
+<h2 id="keyboard-shortcuts">Keyboard shortcuts</h2>
+<table>
+<thead>
+<tr>
+<th>Keys</th>
+<th>Action</th>
+<th>Keys</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Ctrl+O</code></td>
+<td>Open</td>
+<td><code>Ctrl+Z</code> / <code>Ctrl+Y</code></td>
+<td>Undo / redo</td>
+</tr>
+<tr>
+<td><code>Ctrl+S</code></td>
+<td>Save a copy</td>
+<td><code>Ctrl+R</code></td>
+<td>Reset all edits</td>
+</tr>
+<tr>
+<td><code>Ctrl+Shift+S</code></td>
+<td>Save as…</td>
+<td><code>Ctrl+D</code></td>
+<td>Detect faces</td>
+</tr>
+<tr>
+<td><code>Ctrl+N</code></td>
+<td>Add a head</td>
+<td><code>Del</code></td>
+<td>Delete the selected head</td>
+</tr>
+<tr>
+<td><code>Ctrl+0</code></td>
+<td>Fit to window</td>
+<td><code>Ctrl+1</code></td>
+<td>100 %</td>
+</tr>
+<tr>
+<td><code>Ctrl+=</code> / <code>Ctrl+-</code></td>
+<td>Zoom</td>
+<td><code>C</code></td>
+<td>Cycle compare modes</td>
+</tr>
+<tr>
+<td><code>H</code></td>
+<td>Show/hide the zone</td>
+<td><code>Ctrl+U</code></td>
+<td>Check for updates</td>
+</tr>
+<tr>
+<td><code>F1</code></td>
+<td>Shortcuts</td>
+<td><code>Ctrl+Q</code></td>
+<td>Quit</td>
+</tr>
+</tbody>
+</table>
+<p>In the canvas: <strong>wheel</strong> zooms under the cursor, <strong>drag</strong> moves the selected
+head, <strong>middle-drag</strong> or <strong>space-drag</strong> pans, <strong>double-click</strong> on empty space
+adds a head, <strong>right-click</strong> opens the zone menu, <strong>Shift</strong> while resizing keeps
+the zone's aspect ratio.</p>
+<h2 id="how-it-works">How it works</h2>
+<figure><img alt="Pipeline: input photo, YuNet detection, head geometry, inverse warp, output" src="assets/diagram-pipeline.svg"></figure>
+<ol>
+<li>The photo is decoded once and kept in memory. Nothing is ever modified in
+   place — the edit is just a list of ellipses with scale factors.</li>
+<li>YuNet returns a face box plus the two eyes, the nose and the mouth corners.</li>
+<li>From those proportions a head ellipse is estimated (hair included), centred
+   on the eye line and tilted with it.</li>
+<li>The engine builds an inverse coordinate map per zone and hands it to
+   <code>cv2.remap</code>; only the pixels inside the zone are touched.</li>
+<li>Saving renders at full resolution from the original pixels, so the tenth
+   preview you looked at is exactly what you get.</li>
+</ol>
+<p>Here is the warp at 1:1 on the face, before and after a 1.36× enlargement — hair
+and skin scale together, the eyes and mouth move outward with the skull, and the
+background only compresses gently around the rim:</p>
+<p><img alt="The head at 1.00x" src="assets/detail-before.png">
+<img alt="The same head at 1.36x" src="assets/detail-after.png"></p>
+<p>The interesting part — the maths, the measured behaviour and the alternatives
+that were rejected — is in <strong><a href="research.html">research.md</a></strong>.</p>
+<h2 id="auto-update">Auto-update</h2>
+<figure><img alt="Update sequence: check, download, verify checksum, swap the binary, relaunch" src="assets/diagram-update.svg"></figure>
+<p>At start-up (and from the sidebar) the app asks GitHub for the newest release of
+its own repository. When a newer version exists it shows the release notes and,
+on request:</p>
+<ol>
+<li>downloads the build for your platform,</li>
+<li>verifies it against the <code>SHA256SUMS.txt</code> published with the release,</li>
+<li>writes a small helper script that waits for the app to exit, renames the old
+   build to <code>*.old</code>, moves the new one in, and restarts it.</li>
+</ol>
+<p>If anything fails — no network, checksum mismatch, read-only folder — nothing is
+replaced and the reason is shown in the sidebar. Updates apply to the portable
+build; running from source, the button opens the release page instead.</p>
+<p>Point the app at your own fork with <strong>Tools → Settings</strong> or the environment
+variables <code>HEADSIZE_UPDATE_OWNER</code> and <code>HEADSIZE_UPDATE_REPO</code>.</p>
+<h2 id="faq">FAQ</h2>
+<p><strong>Does it work on a photo where the face is turned sideways?</strong>
+Frontal and slightly turned faces work well; a hard profile may not be detected.
+Place a zone by hand in that case, or use <code>--region</code> on the command line.</p>
+<p><strong>Why does the head stop growing past about 1.5×?</strong>
+The zone has a fixed rim and nothing outside it moves, so the head can only grow
+until its outline reaches the rim. Enlarge the zone (drag the side handles) and
+you get more room. The maths is in <a href="research.html">research.md</a>.</p>
+<p><strong>Is the original file modified?</strong>
+No. Saving defaults to <code>name-headsize.ext</code>, and <code>Ctrl+S</code> only overwrites the file
+you opened if you choose it in the dialog.</p>
+<p><strong>Is my photo uploaded anywhere?</strong>
+No. Detection runs locally from the bundled model. The only network traffic is
+the update check, which sends nothing about your images.</p>
+<p><strong>Where are the settings stored?</strong>
+<code>%APPDATA%\HeadSizeStudio\config.json</code> on Windows,
+<code>~/Library/Application Support/HeadSizeStudio/</code> on macOS,
+<code>~/.config/HeadSizeStudio/</code> on Linux.</p>
+<h2 id="development">Development</h2>
+<pre><code class="language-bash">pip install -r requirements-dev.txt
+python -m pytest                     # 132 tests, GUI tests run offscreen
+python -m pytest -m integration      # needs HEADSIZE_TEST_IMAGE=/path/to/photo.jpg
+python tools/make_doc_images.py      # regenerate docs/assets
+python tools/build_docs.py           # markdown -&gt; docs/*.html
+python tools/build_exe.py            # PyInstaller portable build
+</code></pre>
+<p>The repository layout and the invariants an agent must preserve are documented in
+<a href="https://github.com/NarDecH/headsize-studio/blob/main/AGENT.md">AGENT.md</a>.</p>
+<h2 id="credits-and-licence">Credits and licence</h2>
+<ul>
+<li><strong>HeadSize Studio</strong> — MIT (<a href="https://github.com/NarDecH/headsize-studio/blob/main/LICENSE">LICENSE</a>).</li>
+<li><strong>YuNet</strong> face detection model, © Shiqi Yu, MIT licence — bundled in
+  <code>headsize/assets/models</code> with its licence text.</li>
+<li>Built with <a href="https://www.riverbankcomputing.com/software/pyqt/">PyQt6</a>,
+  <a href="https://opencv.org/">OpenCV</a>, <a href="https://numpy.org/">NumPy</a> and
+  <a href="https://python-pillow.org/">Pillow</a>.</li>
+<li>Every screenshot and illustration in this documentation is generated by
+  <code>tools/make_doc_images.py</code>, so no third-party photograph is redistributed.</li>
+</ul>
+    </article>
+    <div class="footer">
+      <p>HeadSize Studio 1.0.0 · MIT licence · built 2026-10-14 ·
+      <a href="https://github.com/NarDecH/headsize-studio">source on GitHub</a> ·
+      <a href="https://github.com/NarDecH/headsize-studio/releases">releases</a> ·
+      <a href="https://github.com/NarDecH/headsize-studio/issues">issues</a></p>
+      <p>This page was generated from <code>readme.md</code> by <code>tools/build_docs.py</code>.</p>
+    </div>
+  </main>
+</div>
+</body>
+</html>
