@@ -15,6 +15,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 RELEASE = ROOT / ".github" / "workflows" / "release.yml"
 CI = ROOT / ".github" / "workflows" / "ci.yml"
+WATCHDOG = ROOT / ".github" / "workflows" / "release-watchdog.yml"
 
 
 def test_release_runs_on_version_tags() -> None:
@@ -69,6 +70,16 @@ def test_tag_input_is_used_when_a_release_is_republished_by_hand() -> None:
     assert text.count("github.event.inputs.tag || github.ref_name") >= 2, (
         "the dispatch input must drive tag_name and the prerelease flag"
     )
+
+
+def test_a_watchdog_rechecks_the_live_release_on_a_schedule() -> None:
+    text = WATCHDOG.read_text(encoding="utf-8")
+    assert re.search(r'schedule:\s*\n\s*- cron: "[^"]+"', text), "it must run unattended"
+    assert "workflow_dispatch" in text, "and on demand"
+    assert "tools/verify_release.py --latest" in text, "it checks whatever is live, not a tag"
+    assert "--download --self-test" in text, "including the published build"
+    assert "GITHUB_TOKEN" in text, "anonymous runs are rate limited to 60 requests/hour"
+    assert "if: failure()" in text, "a red run must say so in the summary"
 
 
 def test_ci_workflow_still_builds_and_self_tests_the_executable() -> None:

@@ -116,6 +116,7 @@ python tools/build_docs.py --check      # rebuild + validate the HTML docs
 python tools/build_exe.py               # dist/HeadSize-Studio-<ver>-windows-x64.exe
 python tools/make_release_notes.py --out release-notes.md --ref v1.0.0
 python tools/verify_release.py --tag v1.0.0 --download --self-test   # live release
+python tools/verify_release.py --latest --download                   # what users get today
 ```
 
 Set `HEADSIZE_TEST_IMAGE=/path/to/portrait.jpg` and run
@@ -171,7 +172,12 @@ the repository refuses to ship third-party photographs.
    installation is offered, every link in the body resolves, the asset's digest
    matches the published checksum, and the downloaded build passes its own
    self-test. The Release workflow runs this automatically after publishing,
-   because none of it can be checked from the source tree.
+   because none of it can be checked from the source tree. With no `--tag` (or
+   `--latest`) it grades whatever release an installation would be offered right
+   now, which is what the scheduled *Release watchdog* workflow
+   (`.github/workflows/release-watchdog.yml`) runs every morning and on demand:
+   a release that rots after publication — a replaced asset, a screenshot link
+   that stops resolving — fails that run instead of waiting for a user to hit it.
 
 The release body is the changelog, converted by `tools/make_release_notes.py` so
 its relative links resolve on the release page (GitHub renders a body against the

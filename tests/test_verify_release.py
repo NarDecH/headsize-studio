@@ -290,6 +290,57 @@ def test_a_rate_limited_check_says_what_to_do(monkeypatch: pytest.MonkeyPatch) -
     assert "API rate limit" in report.findings[0].detail
 
 
+def test_without_a_tag_the_live_release_is_checked() -> None:
+    """The watchdog grades whatever an installation would be offered today."""
+    report = verify_release.verify(
+        SLUG,
+        client=client_for(release_json(tag="v1.0.0"), release_json(tag="v0.9.0")),
+        read_text=lambda url: f"{DIGEST}  {EXE}\n",
+        status=lambda url: 200,
+        platform_name="windows",
+        arch="x64",
+    )
+
+    assert report.ok, report.render()
+    assert report.tag == "v1.0.0", "the highest version, not the most recent upload"
+    assert any("the live stable release is" in f.name for f in report.findings)
+    assert "v1.0.0" in report.render()
+
+
+def test_a_prerelease_is_ignored_on_the_stable_channel() -> None:
+    releases = client_for(
+        release_json(tag="v1.0.0"), release_json(tag="v1.1.0-rc.1", prerelease=True)
+    )
+    report = verify_release.verify(
+        SLUG,
+        client=releases,
+        read_text=lambda url: f"{DIGEST}  {EXE}\n",
+        status=lambda url: 200,
+        platform_name="windows",
+        arch="x64",
+    )
+    assert report.tag == "v1.0.0"
+
+    beta = verify_release.verify(
+        SLUG,
+        channel="beta",
+        client=releases,
+        read_text=lambda url: f"{DIGEST}  {EXE}\n",
+        status=lambda url: 200,
+        platform_name="windows",
+        arch="x64",
+    )
+    assert beta.tag == "v1.1.0-rc.1"
+    assert beta.ok, beta.render()
+
+
+def test_no_release_at_all_fails_with_a_clear_message() -> None:
+    report = verify_release.verify(SLUG, client=client_for())
+
+    assert not report.ok
+    assert "none found" in report.findings[0].detail
+
+
 def test_the_token_can_come_from_the_environment(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.delenv("GITHUB_TOKEN", raising=False)
     monkeypatch.delenv("GH_TOKEN", raising=False)

@@ -22,8 +22,13 @@ is the closest thing to "a user installed this and it worked".
 
 Run:
 
+    python tools/verify_release.py                          # whatever is live now
     python tools/verify_release.py --tag v1.0.0
-    python tools/verify_release.py --tag v1.0.0 --download --self-test
+    python tools/verify_release.py --latest --download --self-test
+
+The scheduled *Release watchdog* workflow runs the last form every day, so a
+release that rots after publication (a moved asset, a link that stops
+resolving) surfaces on its own instead of when a user hits it.
 """
 
 from __future__ import annotations
@@ -76,6 +81,7 @@ class Finding:
 class Report:
     slug: str
     tag: str
+    channel: str = "stable"
     findings: list[Finding] = field(default_factory=list)
 
     def add(self, name: str, ok: bool, detail: str = "") -> None:
@@ -91,7 +97,7 @@ class Report:
 
     def render(self) -> str:
         width = max((len(f.name) for f in self.findings), default=0)
-        lines = [f"{self.slug} · {self.tag}"]
+        lines = [f"{self.slug} · {self.tag or 'latest ' + self.channel}"]
         for finding in self.findings:
             mark = "ok  " if finding.ok else "FAIL"
             lines.append(f"  [{mark}] {finding.name.ljust(width)}  {finding.detail}".rstrip())
@@ -104,6 +110,7 @@ class Report:
         return {
             "slug": self.slug,
             "tag": self.tag,
+            "channel": self.channel,
             "ok": self.ok,
             "findings": [asdict(f) for f in self.findings],
         }
@@ -214,8 +221,9 @@ def check_self_test(
 
 def verify(
     slug: str,
-    tag: str,
+    tag: str = "",
     *,
+    channel: str = "stable",
     client: GithubClient | None = None,
     download: bool = False,
     download_dir: Path | None = None,
@@ -226,12 +234,15 @@ def verify(
     arch: str | None = None,
     token: str = "",
 ) -> Report:
-    """Check one published release; ``platform_name``/``arch`` default to this host."""
+    """Check one published release, or the live one when ``tag`` is empty.
+
+    ``platform_name``/``arch`` default to this host.
+    """
     owner, _, repo = slug.partition("/")
     client = client or GithubClient(owner, repo, token=token or None)
     if read_text is None:
         read_text = lambda url: fetch_text(url, token=token)  # noqa: E731
-    report = Report(slug=slug, tag=tag)
+    report = Report(slug=slug, tag=tag, channel=channel)
     platform_name = platform_name or platform_key()
     arch = arch or arch_key()
 
@@ -244,11 +255,21 @@ def verify(
         report.add(f"release {tag} can be read", False, detail)
         return report
 
-    release: ReleaseInfo | None = next((r for r in releases if r.tag == tag), None)
-    if release is None:
-        report.add(f"release {tag} exists", False, "no such tag")
-        return report
-    report.add(f"release {tag} exists", True, release.html_url)
+    if tag:
+        release: ReleaseInfo | None = next((r for r in releases if r.tag == tag), None)
+        if release is None:
+            report.add(f"release {tag} exists", False, "no such tag")
+            return report
+        report.add(f"release {tag} exists", True, release.html_url)
+    else:
+        # Ask the client, so an install's idea of "the latest release" and this
+        # tool's idea cannot drift apart.
+        release = client.latest_release(channel=channel)
+        if release is None:
+            report.add(f"a published {channel} release is available", False, "none found")
+            return report
+        report.tag = release.tag
+        report.add(f"the live {channel} release is {release.tag}", True, release.html_url)
     report.add("release is published (not a draft)", not release.draft)
     report.add(
         "release body is not empty", bool(release.notes.strip()), f"{len(release.notes)} chars"
@@ -291,10 +312,10 @@ def verify(
         except (urllib.error.URLError, OSError) as exc:
             report.add(f"{checksum.name} can be downloaded", False, str(exc))
 
-    latest = client.latest_release(channel="stable")
+    latest = client.latest_release(channel=channel)
     report.add(
-        "a stable installation is offered this release",
-        latest is not None and latest.tag == tag,
+        f"a {channel} installation is offered this release",
+        latest is not None and latest.tag == release.tag,
         latest.tag if latest else "no release offered",
     )
 
@@ -334,8 +355,20 @@ def verify(
 def main(argv: Sequence[str] | None = None) -> int:
     owner, repo = resolve_repo()
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--tag", default=f"v{__version__}", help="tag to verify")
+    which = parser.add_mutually_exclusive_group()
+    which.add_argument("--tag", default="", help="tag to verify")
+    which.add_argument(
+        "--latest",
+        action="store_true",
+        help="verify whatever release is live now (the default)",
+    )
     parser.add_argument("--slug", default=f"{owner}/{repo}", help="owner/repo")
+    parser.add_argument(
+        "--channel",
+        default="stable",
+        choices=["stable", "beta"],
+        help="release channel to look at with --latest",
+    )
     parser.add_argument(
         "--download", action="store_true", help="fetch the asset and verify its checksum"
     )
@@ -363,6 +396,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     report = verify(
         args.slug,
         args.tag,
+        channel=args.channel,
         download=args.download or args.self_test,
         download_dir=Path(args.dest) if args.dest else None,
         run_self_test=args.self_test,

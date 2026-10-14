@@ -1,0 +1,42 @@
+name: Release watchdog
+
+# A release can rot after it is published: an asset is replaced by hand, a
+# screenshot link in the notes stops resolving, a tag is moved. Nothing in the
+# build would notice, so this re-runs the same check a user's installation
+# performs — daily, and on demand.
+on:
+  schedule:
+    - cron: "17 6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  watch:
+    name: Re-check the live release
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+      - name: Verify whatever release is live right now
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          python tools/verify_release.py --latest --download --self-test \
+            --json release-report.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: release-report
+          path: release-report.json
+          if-no-files-found: warn
+      - name: Note the failure on the run
+        if: failure()
+        shell: bash
+        run: |
+          echo "### The live release failed verification" >> "$GITHUB_STEP_SUMMARY"
+          echo "An asset, its checksum, a link in the notes or the published build regressed." \
+            >> "$GITHUB_STEP_SUMMARY"
