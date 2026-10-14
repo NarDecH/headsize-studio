@@ -158,3 +158,25 @@ jobs:
         run: |
           echo "### HeadSize Studio ${{ needs.verify-version.outputs.version }}" >> $GITHUB_STEP_SUMMARY
           echo "The in-app updater reads this release's assets and SHA256SUMS.txt." >> $GITHUB_STEP_SUMMARY
+
+  verify-release:
+    name: Verify the published release
+    runs-on: windows-latest
+    needs: [publish, verify-version]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+      - name: Check the live release the way an installation sees it
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          python tools/verify_release.py \
+            --tag "${{ github.event.inputs.tag || github.ref_name }}" \
+            --download --self-test
+      - name: Summary
+        if: always()
+        run: |
+          echo "### Published release verified" >> $GITHUB_STEP_SUMMARY
+          echo "Assets, checksums, note links and the build's own self-test." >> $GITHUB_STEP_SUMMARY

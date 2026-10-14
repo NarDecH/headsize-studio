@@ -115,6 +115,7 @@ python tools/make_doc_images.py         # regenerate docs/assets
 python tools/build_docs.py --check      # rebuild + validate the HTML docs
 python tools/build_exe.py               # dist/HeadSize-Studio-<ver>-windows-x64.exe
 python tools/make_release_notes.py --out release-notes.md --ref v1.0.0
+python tools/verify_release.py --tag v1.0.0 --download --self-test   # live release
 ```
 
 Set `HEADSIZE_TEST_IMAGE=/path/to/portrait.jpg` and run
@@ -161,6 +162,16 @@ the repository refuses to ship third-party photographs.
 5. `.github/workflows/release.yml` tests on three platforms, builds the Windows
    executable, writes `SHA256SUMS.txt` and publishes the release. Running
    installations pick it up through the in-app updater.
+
+6. Verify what actually went live: `python tools/verify_release.py --tag v1.0.0
+   --download --self-test`. It needs no token (set `GITHUB_TOKEN` to avoid the
+   anonymous 60 requests/hour limit) and reports each finding as `[ok]`/`[FAIL]`:
+   the tag exists and is published, the updater picks a build for this platform
+   and finds `SHA256SUMS.txt` listing it, the release is what a stable
+   installation is offered, every link in the body resolves, the asset's digest
+   matches the published checksum, and the downloaded build passes its own
+   self-test. The Release workflow runs this automatically after publishing,
+   because none of it can be checked from the source tree.
 
 The release body is the changelog, converted by `tools/make_release_notes.py` so
 its relative links resolve on the release page (GitHub renders a body against the

@@ -50,6 +50,13 @@ def test_release_notes_are_built_for_the_tag_being_released() -> None:
     assert "--ref" in notes_step, "the links must be pinned to the released tag"
 
 
+def test_the_published_release_is_verified_after_publishing() -> None:
+    text = RELEASE.read_text(encoding="utf-8")
+    assert "tools/verify_release.py" in text, "every release must be checked after it is live"
+    assert "--download --self-test" in text, "checking the published binary is the whole point"
+    assert "needs: [publish" in text, "verification must follow the publish job"
+
+
 def test_release_checks_the_tag_against_both_version_files() -> None:
     text = RELEASE.read_text(encoding="utf-8")
     assert "headsize/version.py" in text
