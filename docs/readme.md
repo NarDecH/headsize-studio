@@ -212,7 +212,8 @@ The repository layout and the invariants an agent must preserve are documented i
 
 - **HeadSize Studio** — MIT ([LICENSE](../LICENSE)).
 - **YuNet** face detection model, © Shiqi Yu, MIT licence — bundled in
-  `headsize/assets/models` with its licence text.
+  `headsize/assets/models` with its licence text. All attributions are in
+  [THIRD-PARTY-NOTICES.md](../THIRD-PARTY-NOTICES.md).
 - Built with [PyQt6](https://www.riverbankcomputing.com/software/pyqt/),
   [OpenCV](https://opencv.org/), [NumPy](https://numpy.org/) and
   [Pillow](https://python-pillow.org/).
