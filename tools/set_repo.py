@@ -12,7 +12,9 @@ It updates:
 * the repository links inside ``README.md`` and ``docs/*.md``.
 
 The ``HEADSiZE-OWNER`` placeholder means "not published yet"; the updater reports
-itself as disabled rather than polling a repository that does not exist.
+itself as disabled rather than polling a repository that does not exist. The
+placeholder is rewritten too, so a checkout that was already published can still
+have a stray placeholder (for example a new changelog section) repaired.
 """
 
 from __future__ import annotations
@@ -28,6 +30,19 @@ sys.path.insert(0, str(ROOT))
 PLACEHOLDER = "HEADSiZE-OWNER"
 DEFAULT_REPO = "headsize-studio"
 
+#: Every tracked text file that carries repository coordinates.
+REWRITE_TARGETS = (
+    "pyproject.toml",
+    "README.md",
+    "CHANGELOG.md",
+    "AGENT.md",
+    "docs/readme.md",
+    "docs/research.md",
+    "docs/changelog.md",
+    "docs/index.html",
+    "tools/build_docs.py",
+)
+
 
 def current_defaults() -> tuple[str, str]:
     from headsize.update.repo import DEFAULT_OWNER, DEFAULT_REPO
@@ -39,6 +54,10 @@ def rewrite(path: Path, old_owner: str, old_repo: str, owner: str, repo: str) ->
     text = path.read_text(encoding="utf-8")
     updated = text.replace(f"{old_owner}/{old_repo}", f"{owner}/{repo}")
     updated = updated.replace(f"github.com/{old_owner}", f"github.com/{owner}")
+    if old_owner != PLACEHOLDER:
+        # Repair a stale placeholder left over from before the first publish.
+        updated = updated.replace(f"{PLACEHOLDER}/{old_repo}", f"{owner}/{repo}")
+        updated = updated.replace(f"github.com/{PLACEHOLDER}", f"github.com/{owner}")
     if updated != text:
         path.write_text(updated, encoding="utf-8")
         return True
@@ -80,7 +99,7 @@ def main(argv: list[str] | None = None) -> int:
 
     update_repo_module(owner, repo)
     touched: list[str] = ["headsize/update/repo.py"]
-    for relative in ("pyproject.toml", "README.md", "docs/readme.md", "docs/research.md", "docs/changelog.md", "docs/index.html", "AGENT.md", "tools/build_docs.py"):
+    for relative in REWRITE_TARGETS:
         path = ROOT / relative
         if path.is_file() and rewrite(path, old_owner, old_repo, owner, repo):
             touched.append(relative)

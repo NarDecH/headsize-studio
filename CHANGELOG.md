@@ -36,4 +36,4 @@ First public release.
 - Hard profile faces often need a manually placed zone.
 - Self-update requires a packaged build.
 
-[1.0.0]: https://github.com/HEADSiZE-OWNER/headsize-studio/releases/tag/v1.0.0
+[1.0.0]: https://github.com/NarDecH/headsize-studio/releases/tag/v1.0.0
